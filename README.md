@@ -27,7 +27,6 @@ This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtu
 ## Quick start
 ```bash
 # clone and enter
-git clone <your-repo-url>.git
 cd azure-vwan-secure-hub-lab
 
 # make scripts executable
@@ -72,29 +71,6 @@ At the top of the script you can change:
   ```bash
   az group delete -n $rg --yes --no-wait
   ```
-
-## How to publish this repo to GitHub (command line)
-
-### Option A: Using `gh` (GitHub CLI)
-```bash
-# install gh if needed: https://cli.github.com/
-cd azure-vwan-secure-hub-lab
-git init
-git add .
-git commit -m "Initial commit: Azure vWAN Secure Hub lab scripts"
-gh repo create colinweiner111/azure-vwan-secure-hub-lab --public --source=. --remote=origin --push
-```
-
-### Option B: Using plain git + GitHub web
-```bash
-cd azure-vwan-secure-hub-lab
-git init
-git add .
-git commit -m "Initial commit: Azure vWAN Secure Hub lab scripts"
-git branch -M main
-git remote add origin https://github.com/<your-user>/azure-vwan-secure-hub-lab.git
-git push -u origin main
-```
 
 ## Cleanup
 When finished, delete the resource group created by the script:
