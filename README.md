@@ -2,7 +2,7 @@
 
 > This lab script is based on work by Daniel Mauser (see *Credits & Source* below).
 
-This repo contains two Azure CLI/bash scripts that deploy a two‑hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and optional Bastion. They are intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
+This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and Azure Bastion. They are intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
 
 > **⚠️ Cost & Quota Notice**  
 > These scripts create multiple VNets, gateways (which are expensive), firewalls, VMs, and public IPs. Delete the resource group when you're done.
@@ -36,28 +36,37 @@ chmod +x svhri-intra-deploy-cxdemo.sh
 # (optional) edit parameters at the top of the script(s)
 # IMPORTANT: change the default admin password before running
 
-# run one of them
+# run it
 ./svhri-intra-deploy-cxdemo.sh
 ```
 
 ### Parameters
-
-- `ENABLE_BASTION_IP_CONNECT` (env var; default `false`) — set to `true` to enable Bastion IP connect (adds `--sku Standard --enable-ip-connect`).
-At the top of the scripts you can change:
+At the top of the script you can change:
 - `region1`, `region2`
-- `rg` — `vwanname`, `hub1name`, `hub2name`
+- `rg`
+- `vwanname`, `hub1name`, `hub2name`
 - `username`, `password` (**set a strong password** or consider using `--generate-ssh-keys` with Linux VMs)
 - `vmsize`, `firewallsku`
+- `ENABLE_BASTION_IP_CONNECT` (env var; default `false`) — set to `true` to enable Bastion IP connect (adds `--sku Standard --enable-ip-connect`).
+
+### What gets deployed
+- vWAN + two vHubs
+- Three spokes per hub
+- Two branch VNets with VPN Gateways (BGP)
+- Azure Firewall (Hub) + Policy per hub
+- LA Workspaces + diagnostic settings
+- VM boot diagnostics + optional net tools installer
+- Routing Intent (PrivateOnly) with next hop = Azure Firewall
+- **Azure Bastion — provides browser-based RDP/SSH access to all VMs in both hubs**
 
 ## Recommended improvements (optional)
-
 - Replace inline password with SSH keys or `az vm create ... --generate-ssh-keys`.
 - Parameterize via environment file:
   ```bash
   cp env.sample .env
   # edit .env, then
   set -a; source .env; set +a
-  ./svhri-intra-deploy-cxdemo-1.sh
+  ./svhri-intra-deploy-cxdemo.sh
   ```
 - Add teardown helper:
   ```bash
@@ -65,6 +74,7 @@ At the top of the scripts you can change:
   ```
 
 ## How to publish this repo to GitHub (command line)
+
 ### Option A: Using `gh` (GitHub CLI)
 ```bash
 # install gh if needed: https://cli.github.com/
@@ -87,11 +97,10 @@ git push -u origin main
 ```
 
 ## Cleanup
-When finished, delete the resource group created by the script(s):
+When finished, delete the resource group created by the script:
 ```bash
 az group delete -n <rg-from-script> --yes --no-wait
 ```
-
 
 ## Credits & Source
 
