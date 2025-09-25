@@ -450,21 +450,52 @@ do
 done
 echo Deployment has finisheda
 
-#Create subnet for Azure Bastion
-az network vnet subnet create --name AzureBastionSubnet --resource-group $rg --vnet-name branch1 --address-prefixes 10.100.1.0/24
+# =====================
+# Bastion IP Connect Toggle
+# Set to "true" to enable Bastion IP-based connect (requires Bastion Standard).
+# Set to "false" to create Bastion without IP connect.
+ENABLE_BASTION_IP_CONNECT=${ENABLE_BASTION_IP_CONNECT:-false}
+# =====================
 
-# Create a public IP address for the Azure Bastion
-az network public-ip create --resource-group $rg --name Branch1-Bastion-PIP --sku Standard --location eastus2
+# ===== Branch1 Bastion (robust) =====
+Branch1_VNET_NAME="${Branch1_VNET_NAME:-branch1}"
+Branch1_VNET_RG="${Branch1_VNET_RG:-$rg}"
 
-# Create the Azure Bastion
+# Resolve VNet and region
+branch1_vnet_id=$(az network vnet show -g "$Branch1_VNET_RG" -n "$Branch1_VNET_NAME" --query id -o tsv 2>/dev/null || true)
+if [ -z "$branch1_vnet_id" ]; then
+  echo "ERROR: Branch1 VNet '$Branch1_VNET_NAME' not found in RG '$Branch1_VNET_RG'."; exit 1
+fi
+branch1_location=$(az network vnet show -g "$Branch1_VNET_RG" -n "$Branch1_VNET_NAME" --query location -o tsv)
+
+# Ensure AzureBastionSubnet exists (use /27; adjust if overlaps)
+if ! az network vnet subnet show -g "$Branch1_VNET_RG" --vnet-name "$Branch1_VNET_NAME" -n AzureBastionSubnet >/dev/null 2>&1; then
+  az network vnet subnet create -g "$Branch1_VNET_RG" \
+    --vnet-name "$Branch1_VNET_NAME" \
+    -n AzureBastionSubnet \
+    --address-prefixes 10.255.1.224/27 \
+    --delegations Microsoft.Network/bastionHosts
+fi
+
+# Public IP in SAME region as the VNet
+if ! az network public-ip show -g "$Branch1_VNET_RG" -n Branch1-Bastion-PIP >/dev/null 2>&1; then
+  az network public-ip create -g "$Branch1_VNET_RG" -n Branch1-Bastion-PIP --sku Standard --location "$branch1_location"
+fi
+
 # Decide Bastion flags based on toggle
 if [ "$ENABLE_BASTION_IP_CONNECT" = "true" ]; then
   echo "Bastion IP Connect enabled (using --sku Standard --enable-ip-connect)"
   BASTION_FLAGS="--sku Standard --enable-ip-connect"
 else
-  # Use Standard SKU by default for consistency; remove if you prefer Basic
   BASTION_FLAGS="--sku Standard"
 fi
-az network bastion create --resource-group $rg --name Branch1-Bastion --public-ip-address Branch1-Bastion-PIP --vnet-name branch1 --location eastus2 --enable-ip-connect $BASTION_FLAGS
+
+# Create Bastion attached to the correct VNet/region
+az network bastion create -g "$Branch1_VNET_RG" -n Branch1-Bastion \
+  --vnet-name "$Branch1_VNET_NAME" \
+  --public-ip-address Branch1-Bastion-PIP \
+  --location "$branch1_location" \
+  $BASTION_FLAGS
+# ===== end Branch1 Bastion =====
 
 echo All done.....................................
