@@ -2,19 +2,52 @@
 
 > This lab script is based on work by Daniel Mauser (see *Credits & Source* below).
 
-This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and Azure Bastion. They are intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
+This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, 
+and Azure Bastion. They are intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
 
-> **⚠️ Cost & Quota Notice**  
+> **⚠️ Important**
 > These scripts create multiple VNets, gateways (which are expensive), firewalls, VMs, and public IPs. Delete the resource group when you're done.
 > ```bash
 > az group delete -n <your-rg> --yes --no-wait
 > ```
 
+## Getting Started
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/colinweiner111/azure-vwan-secure-hub-lab.git
+cd azure-vwan-secure-hub-lab
+```
+
 ## Script
 
-- `svhri-intra-deploy-cxdemo.sh` — single script with toggle for Bastion IP Connect.
+- svhri-intra-deploy-cxdemo.sh — single script with toggle for Bastion IP Connect.
 
 ## Prerequisites
+
+### Shell Environment
+
+**⚠️ This repository requires Bash** — the scripts are written in Bash shell and **cannot run directly in PowerShell**.
+
+#### Running on Windows
+
+Choose one of the following options:
+
+1. **Azure Cloud Shell (Recommended)**
+   - Use the built-in Bash environment in Azure Portal
+   - Already has Azure CLI installed and configured
+   - Access at: https://shell.azure.com
+
+2. **Windows Subsystem for Linux (WSL)**
+   - Install WSL2: `wsl --install` (in PowerShell as Administrator)
+   - After installation, open Ubuntu and run commands there
+
+3. **Git Bash**
+   - Install [Git for Windows](https://git-scm.com/download/win)
+   - Includes Git Bash which can run most bash scripts
+
+### Azure Requirements
 
 - Azure CLI >= 2.60
 - Logged in and default subscription set:
@@ -25,8 +58,10 @@ This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtu
 - CLI extensions are handled by the scripts (`virtual-wan`, `azure-firewall`, `bastion`).
 
 ## Quick start
+
 ```bash
 # clone and enter
+git clone https://github.com/colinweiner111/azure-vwan-secure-hub-lab.git
 cd azure-vwan-secure-hub-lab
 
 # make scripts executable
@@ -40,6 +75,7 @@ chmod +x svhri-intra-deploy-cxdemo.sh
 ```
 
 ### Parameters
+
 At the top of the script you can change:
 - `region1`, `region2`
 - `rg`
@@ -49,6 +85,7 @@ At the top of the script you can change:
 - `ENABLE_BASTION_IP_CONNECT` (env var; default `false`) — set to `true` to enable Bastion IP connect (adds `--sku Standard --enable-ip-connect`).
 
 ### What gets deployed
+
 - vWAN + two vHubs
 - Three spokes per hub
 - Two branch VNets with VPN Gateways (BGP)
@@ -59,6 +96,7 @@ At the top of the script you can change:
 - **Azure Bastion — provides browser-based RDP/SSH access to all VMs in both hubs**
 
 ## Recommended improvements (optional)
+
 - Replace inline password with SSH keys or `az vm create ... --generate-ssh-keys`.
 - Parameterize via environment file:
   ```bash
@@ -73,6 +111,7 @@ At the top of the script you can change:
   ```
 
 ## Cleanup
+
 When finished, delete the resource group created by the script:
 ```bash
 az group delete -n <rg-from-script> --yes --no-wait
@@ -80,7 +119,7 @@ az group delete -n <rg-from-script> --yes --no-wait
 
 ## Credits & Source
 
-This script is adapted from the excellent work in Daniel Mauser’s repository:  
+This script is adapted from the excellent work in Daniel Mauser's repository:
 <https://github.com/dmauser/azure-virtualwan/tree/main/svh-ri-intra-region>
 
 Huge thanks to **Daniel Mauser (@dmauser)** for sharing and maintaining these scenarios and guidance.
