@@ -36,7 +36,7 @@ try {
 # Parameters (make changes based on your requirements)
 $region1 = "westus3"  # Set region1
 $region2 = "westus3"  # Set region2
-$rg = "vwan-securehub-v12"  # Set resource group
+$rg = "vwan-securehub-lab"  # Set resource group
 $vwanname = "svh-intra"  # Set vWAN name
 $hub1name = "sechub1"  # Set Hub1 name
 $hub2name = "sechub2"  # Set Hub2 name
@@ -100,7 +100,7 @@ foreach ($subnetId in $region1Subnets) {
     }
 }
 
-$region2Subnets = az network vnet list -g $rg --query "[?location=='$region2'].{id:subnets[0].id}" -o tsv
+$region2Subnets = az network vnet list -g $rg --query "[?location=='$region2' && name!='bastion-vnet'].{id:subnets[0].id}" -o tsv
 foreach ($subnetId in $region2Subnets) {
     if ($subnetId) {
         az network vnet subnet update --id $subnetId --network-security-group "default-nsg-$hub2name-$region2" -o none
@@ -370,19 +370,19 @@ az network vpn-connection create -n "branch1-to-$hub2name-gw1" -g $rg -l $region
 az network local-gateway create -g $rg -n "lng-$hub2name-gw2" --gateway-ip-address $vwanh2gwpip2 --asn 65515 --bgp-peering-address $vwanh2gwbgp2 -l $region2 --output none
 az network vpn-connection create -n "branch1-to-$hub2name-gw2" -g $rg -l $region1 --vnet-gateway1 branch1-vpngw --local-gateway2 "lng-$hub2name-gw2" --enable-bgp --shared-key 'abc123' --output none
 
-Write-Host "Enabling Routing Intent (Private Traffic Only)..." -ForegroundColor Cyan
+Write-Host "Enabling Routing Intent (Internet and Private Traffic)..." -ForegroundColor Cyan
 $nexthophub1 = az network vhub show -g $rg -n $hub1name --query azureFirewall.id -o tsv
 az deployment group create --name "$hub1name-ri" `
     --resource-group $rg `
     --template-file "$PSScriptRoot\routing-intent.bicep" `
-    --parameters scenarioOption=PrivateOnly hubname=$hub1name nexthop=$nexthophub1 `
+    --parameters scenarioOption=InternetAndPrivate hubname=$hub1name nexthop=$nexthophub1 `
     --no-wait
 
 $nexthophub2 = az network vhub show -g $rg -n $hub2name --query azureFirewall.id -o tsv
 az deployment group create --name "$hub2name-ri" `
     --resource-group $rg `
     --template-file "$PSScriptRoot\routing-intent.bicep" `
-    --parameters scenarioOption=PrivateOnly hubname=$hub2name nexthop=$nexthophub2 `
+    --parameters scenarioOption=InternetAndPrivate hubname=$hub2name nexthop=$nexthophub2 `
     --no-wait
 
 $subid = az account list --query "[?isDefault == ``true``].id" --all -o tsv
