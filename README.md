@@ -2,12 +2,11 @@
 
 > This lab script is based on work by Daniel Mauser (see *Credits & Source* below).
 
-This repo contains a single Azure CLI/bash script that deploys a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, 
-and Azure Bastion. They are intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
+This repo contains a **Bicep-based deployment** for a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and Azure Bastion. Intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
 
 > **⚠️ Important**
 > These scripts create multiple VNets, gateways (which are expensive), firewalls, VMs, and public IPs. Delete the resource group when you're done.
-> ```bash
+> ```powershell
 > az group delete -n <your-rg> --yes --no-wait
 > ```
 
@@ -15,110 +14,79 @@ and Azure Bastion. They are intended for **lab/demo** use to validate secured vH
 
 ### Clone the Repository
 
-```bash
+```powershell
 git clone https://github.com/colinweiner111/azure-vwan-secure-hub-lab.git
 cd azure-vwan-secure-hub-lab
 ```
 
-## Script
+## Deployment
 
-- svhri-intra-deploy-cxdemo.sh — single script with toggle for Bastion IP Connect.
+Use the PowerShell deployment script:
+
+```powershell
+.\deploy-bicep.ps1 -ResourceGroupName <your-rg-name>
+```
+
+The script will:
+1. Create the resource group
+2. Deploy the Bicep template
+3. Prompt for VM admin password if not provided
+
+### Optional Parameters
+
+- `-ResourceGroupName` (required): Name of the resource group
+- `-Location` (optional): Azure region (default: script will prompt)
 
 ## Prerequisites
 
-### Shell Environment
+### Requirements
 
-**⚠️ This repository requires Bash** — the scripts are written in Bash shell and **cannot run directly in PowerShell**.
-
-#### Running on Windows
-
-Choose one of the following options:
-
-1. **Azure Cloud Shell (Recommended)**
-   - Use the built-in Bash environment in Azure Portal
-   - Already has Azure CLI installed and configured
-   - Access at: https://shell.azure.com
-
-2. **Windows Subsystem for Linux (WSL)**
-   - Install WSL2: `wsl --install` (in PowerShell as Administrator)
-   - After installation, open Ubuntu and run commands there
-
-3. **Git Bash**
-   - Install [Git for Windows](https://git-scm.com/download/win)
-   - Includes Git Bash which can run most bash scripts
-
-### Azure Requirements
-
-- Azure CLI >= 2.60
+- Azure CLI or Azure PowerShell
 - Logged in and default subscription set:
-  ```bash
+  ```powershell
   az login
   az account set --subscription "<SUBSCRIPTION_ID>"
   ```
-- CLI extensions are handled by the scripts (`virtual-wan`, `azure-firewall`, `bastion`).
 
-## Quick start
+## Quick Start
 
-```bash
+```powershell
 # clone and enter
 git clone https://github.com/colinweiner111/azure-vwan-secure-hub-lab.git
 cd azure-vwan-secure-hub-lab
 
-# make scripts executable
-chmod +x svhri-intra-deploy-cxdemo.sh
+# run deployment
+.\deploy-bicep.ps1 -ResourceGroupName vwan-lab-rg
 
-# (optional) edit parameters at the top of the script(s)
-# IMPORTANT: change the default admin password before running
-
-# run it
-./svhri-intra-deploy-cxdemo.sh
+# you'll be prompted for:
+# - Azure region
+# - VM admin password
 ```
 
-### Parameters
-
-At the top of the script you can change:
-- `region1`, `region2`
-- `rg`
-- `vwanname`, `hub1name`, `hub2name`
-- `username`, `password` (**set a strong password** or consider using `--generate-ssh-keys` with Linux VMs)
-- `vmsize`, `firewallsku`
-- `ENABLE_BASTION_IP_CONNECT` (env var; default `false`) — set to `true` to enable Bastion IP connect (adds `--sku Standard --enable-ip-connect`).
-
-### What gets deployed
+## What Gets Deployed
 
 - vWAN + two vHubs
 - Three spokes per hub
 - Two branch VNets with VPN Gateways (BGP)
 - Azure Firewall (Hub) + Policy per hub
-- LA Workspaces + diagnostic settings
-- VM boot diagnostics + optional net tools installer
+- Log Analytics Workspaces + diagnostic settings
+- VM boot diagnostics
 - Routing Intent (PrivateOnly) with next hop = Azure Firewall
 - **Azure Bastion — provides browser-based RDP/SSH access to all VMs in both hubs**
 
-## Recommended improvements (optional)
+## Default Configuration
 
-- Replace inline password with SSH keys or `az vm create ... --generate-ssh-keys`.
-- Parameterize via environment file:
-  ```bash
-  cp env.sample .env
-  # edit .env, then
-  set -a; source .env; set +a
-  ./svhri-intra-deploy-cxdemo.sh
-  ```
-- Add teardown helper:
-  ```bash
-  az group delete -n $rg --yes --no-wait
-  ```
+- **Username**: `azureuser`
+- **Password**: Prompted during deployment (set a strong password)
+- **Regions**: Configured in Bicep parameters
+- **VM Size**: Configured in Bicep parameters
+- **Firewall SKU**: Configured in Bicep parameters
 
 ## Cleanup
 
-When finished, delete the resource group created by the script:
-```bash
-az group delete -n <rg-from-script> --yes --no-wait
-```
-
-## Credits & Source
-
+When finished, delete the resource group:
+```powershell
+az group delete -n <your-rg> --yes --no-wait
 This script is adapted from the excellent work in Daniel Mauser's repository:
 <https://github.com/dmauser/azure-virtualwan/tree/main/svh-ri-intra-region>
 
