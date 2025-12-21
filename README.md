@@ -87,10 +87,15 @@ cd azure-vwan-secure-hub-lab
 When finished, delete the resource group:
 ```powershell
 az group delete -n <your-rg> --yes --no-wait
+```
+
+## Credits & Source
+
 This script is adapted from the excellent work in Daniel Mauser's repository:
-<https://github.com/dmauser/azure-virtualwan/tree/main/svh-ri-intra-region>
+https://github.com/dmauser/azure-virtualwan/tree/main/svh-ri-intra-region
 
 Huge thanks to **Daniel Mauser (@dmauser)** for sharing and maintaining these scenarios and guidance.
 
 ---
+
 © MIT Licensed. See `LICENSE`.
