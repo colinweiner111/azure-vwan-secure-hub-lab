@@ -24,7 +24,12 @@ cd azure-vwan-secure-hub-lab
 Use the PowerShell deployment script:
 
 ```powershell
-.\deploy-bicep.ps1 -ResourceGroupName <your-rg-name>
+.\deploy-bicep.ps1 -ResourceGroupName <your-rg-name> -Location <region>
+```
+
+Example:
+```powershell
+.\deploy-bicep.ps1 -ResourceGroupName vwan-lab-rg -Location eastus
 ```
 
 The script will:
