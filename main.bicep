@@ -10,7 +10,7 @@ param region2 string = 'westus3'
 param resourceGroupName string = 'vwan-securehub-lab'
 
 @description('Virtual WAN name')
-param vwanName string = 'svh-intra'
+param vwanName string = 'vwan-demo'
 
 @description('Hub 1 name')
 param hub1Name string = 'sechub1'

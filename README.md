@@ -4,12 +4,6 @@
 
 This repo contains a **Bicep-based deployment** for a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and Azure Bastion. Intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
 
-> **⚠️ Important**
-> These scripts create multiple VNets, gateways (which are expensive), firewalls, VMs, and public IPs. Delete the resource group when you're done.
-> ```powershell
-> az group delete -n <your-rg> --yes --no-wait
-> ```
-
 ## Getting Started
 
 ### Clone the Repository
@@ -29,7 +23,7 @@ Use the PowerShell deployment script:
 
 Example:
 ```powershell
-.\deploy-bicep.ps1 -ResourceGroupName vwan-lab-rg -Location eastus
+.\deploy-bicep.ps1 -ResourceGroupName vwan-lab-rg -Location westus3
 ```
 
 The script will:
@@ -52,21 +46,6 @@ The script will:
   az login
   az account set --subscription "<SUBSCRIPTION_ID>"
   ```
-
-## Quick Start
-
-```powershell
-# clone and enter
-git clone https://github.com/colinweiner111/azure-vwan-secure-hub-lab.git
-cd azure-vwan-secure-hub-lab
-
-# run deployment
-.\deploy-bicep.ps1 -ResourceGroupName vwan-lab-rg
-
-# you'll be prompted for:
-# - Azure region
-# - VM admin password
-```
 
 ## What Gets Deployed
 
