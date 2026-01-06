@@ -12,7 +12,7 @@ resource branchVnet 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
 }
 
 resource branchNic 'Microsoft.Network/networkInterfaces@2023-11-01' = {
-  name: 'branch1VM-nic'
+  name: 'branch1-vm-nic'
   location: location
   properties: {
     ipConfigurations: [
@@ -30,7 +30,7 @@ resource branchNic 'Microsoft.Network/networkInterfaces@2023-11-01' = {
 }
 
 resource branchVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
-  name: 'branch1VM'
+  name: 'branch1-vm'
   location: location
   properties: {
     hardwareProfile: {
@@ -44,7 +44,7 @@ resource branchVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
         version: 'latest'
       }
       osDisk: {
-        name: 'branch1VM-osdisk'
+        name: 'branch1-vm-osdisk'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'Premium_LRS'
@@ -52,7 +52,7 @@ resource branchVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       }
     }
     osProfile: {
-      computerName: 'branch1VM'
+      computerName: 'branch1-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
       linuxConfiguration: {
