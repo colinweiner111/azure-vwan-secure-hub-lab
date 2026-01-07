@@ -6,6 +6,13 @@ param vmSize string
 param hub1Name string
 param hub2Name string
 
+// Cloud-init script to install traceroute
+var cloudInit = base64('''#cloud-config
+package_update: true
+packages:
+  - traceroute
+''')
+
 // Branch VM
 resource branchVnet 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: 'branch1'
@@ -55,6 +62,7 @@ resource branchVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       computerName: 'branch1-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
+      customData: cloudInit
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
@@ -118,6 +126,7 @@ resource spoke1Hub1VM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       computerName: 'hub1-spoke1-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
+      customData: cloudInit
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
@@ -180,6 +189,7 @@ resource spoke2Hub1VM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       computerName: 'hub1-spoke2-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
+      customData: cloudInit
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
@@ -243,6 +253,7 @@ resource spoke1Hub2VM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       computerName: 'hub2-spoke1-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
+      customData: cloudInit
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
@@ -305,6 +316,7 @@ resource spoke2Hub2VM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       computerName: 'hub2-spoke2-vm'
       adminUsername: adminUsername
       adminPassword: adminPassword
+      customData: cloudInit
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
