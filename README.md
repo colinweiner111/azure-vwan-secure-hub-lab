@@ -44,12 +44,18 @@ The script will:
 
 ### Requirements
 
-- Azure CLI or Azure PowerShell
+- **Azure Subscription** — An active Azure subscription with sufficient quota for the resources deployed
+- **RBAC Role** — One of the following at the subscription or resource group level:
+  - **Owner** — Full access (recommended for lab/demo)
+  - **Contributor** — Can create all resources but cannot assign roles
+- **Azure CLI or Azure PowerShell** — For deployment
 - Logged in and default subscription set:
   ```powershell
   az login
   az account set --subscription "<SUBSCRIPTION_ID>"
   ```
+
+> 💡 **Note:** This lab deploys Azure Firewall (Premium by default), VPN Gateways, and Bastion Standard — these have hourly costs. See [Cleanup](#cleanup) when done.
 
 ## What Gets Deployed
 
