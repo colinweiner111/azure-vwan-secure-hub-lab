@@ -13,10 +13,10 @@ param resourceGroupName string = 'vwan-securehub-lab'
 param vwanName string = 'vwan-demo'
 
 @description('Hub 1 name')
-param hub1Name string = 'sechub1'
+param hub1Name string = 'hub1'
 
 @description('Hub 2 name')
-param hub2Name string = 'sechub2'
+param hub2Name string = 'hub2'
 
 @description('Admin username for VMs')
 param adminUsername string = 'azureuser'
@@ -119,3 +119,4 @@ output vwanId string = network.outputs.vwanId
 output hub1Id string = network.outputs.hub1Id
 output hub2Id string = network.outputs.hub2Id
 output bastionName string = bastion.outputs.bastionName
+
