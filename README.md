@@ -4,6 +4,10 @@
 
 This repo contains a **Bicep-based deployment** for a two-hub **Virtual WAN** lab with spokes, branch VNets, VPN Gateways, Azure Firewall (Hub), Log Analytics, and Azure Bastion. Intended for **lab/demo** use to validate secured vHub and routing intent scenarios.
 
+## Architecture
+
+![Lab Architecture](image/vwan-02-lab-01.png)
+
 ## Getting Started
 
 ### Clone the Repository
@@ -125,3 +129,4 @@ Huge thanks to **Daniel Mauser (@dmauser)** for sharing and maintaining these sc
 ---
 
 © MIT Licensed. See `LICENSE`.
+
