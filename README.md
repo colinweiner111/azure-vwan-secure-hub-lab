@@ -88,29 +88,29 @@ The script will:
 
 ## Accessing VMs via Azure Bastion
 
-Azure Bastion is deployed in the `bastion-vnet` and provides secure SSH access to all VMs without requiring public IPs.
+Azure Bastion provides secure, browser-based RDP/SSH access to Azure VMs without public IPs, aligning with Zero Trust principles and Azure Landing Zone standards.
+
+In Azure Virtual WAN with Routing Intent, east-west traffic is forced through Azure Firewall, which breaks the standard Bastion "Connect to VM" flow that assumes direct VNet peering.
+
+As a result, Bastion must use **"Connect via IP address"**, explicitly targeting the VM's private IP so traffic can traverse the vWAN routing fabric and firewall as intended.
+
+> ⚠️ **Important:** Your Azure Firewall rules must allow RDP (3389) and/or SSH (22) from the Bastion subnet to the VM subnets.
+
+> **References:**
+> - [Connect to a VM via IP address (Microsoft Docs)](https://learn.microsoft.com/azure/bastion/connect-ip-address) — Official guide for using Bastion's IP-based connection feature (requires Standard SKU)
+> - [Azure Bastion Routing in Virtual WAN (Jose Moreno)](https://blog.cloudtrooper.net/2022/09/17/azure-bastion-routing-in-virtual-wan/) — Deep dive into Bastion placement options and routing behavior in vWAN topologies
 
 ### Using Azure Portal (IP-based connection)
 1. Navigate to **Azure Portal → Bastions**
 2. Select **bastion-vnet-bastion**
 3. Under **Connect**, select **Connection Settings**
 4. Choose **Connect via IP address**
-5. Enter the **private IP address** of the target VM (check VM's network interface)
+5. Enter the **private IP address** of the target VM (see [VM Network Information](#vm-network-information) or check the VM's network interface)
 6. Enter username: `azureuser`
 7. Enter the password you set during deployment
 8. Click **Connect**
 
-**Note:** You must use IP-based connection from the Bastion resource to access VMs across spokes and the branch VNet.
-
-### Using Azure CLI
-```bash
-# Connect to a VM using Bastion
-az network bastion ssh --name bastion-vnet-bastion \
-  --resource-group <your-rg-name> \
-  --target-resource-id /subscriptions/<sub-id>/resourceGroups/<your-rg-name>/providers/Microsoft.Compute/virtualMachines/<vm-name> \
-  --auth-type password \
-  --username azureuser
-```
+> 💡 **Tip:** Bastion Standard SKU is required for IP-based connections. This lab deploys Standard by default.
 
 ## Cleanup
 
@@ -124,9 +124,10 @@ az group delete -n <your-rg> --yes --no-wait
 This script is adapted from the excellent work in Daniel Mauser's repository:
 https://github.com/dmauser/azure-virtualwan/tree/main/svh-ri-intra-region
 
-Huge thanks to **Daniel Mauser (@dmauser)** for sharing and maintaining these scenarios and guidance.
+Huge thanks to **Daniel Mauser** ([@dmauser](https://github.com/dmauser)) and **Jose Moreno** ([@erjosito](https://github.com/erjosito)) for sharing and maintaining these scenarios and guidance.
 
 ---
 
 © MIT Licensed. See `LICENSE`.
+
 
