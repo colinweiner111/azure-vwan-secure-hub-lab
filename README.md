@@ -8,6 +8,24 @@ This repo contains a **Bicep-based deployment** for a two-hub **Virtual WAN** la
 
 ![Lab Architecture](image/vwan-02-lab-01.png)
 
+## Prerequisites
+
+### Requirements
+
+- **PowerShell 7+** — The deployment script uses PowerShell 7+ syntax (ternary operators, null-coalescing). Windows PowerShell 5.1 will fail with parser errors. Install from [https://aka.ms/PSWindows](https://aka.ms/PSWindows) and run scripts using `pwsh` instead of `powershell`.
+- **Azure Subscription** — An active Azure subscription with sufficient quota for the resources deployed
+- **RBAC Role** — One of the following at the subscription or resource group level:
+  - **Owner** — Full access (recommended for lab/demo)
+  - **Contributor** — Can create all resources but cannot assign roles
+- **Azure CLI or Azure PowerShell** — For deployment
+- Logged in and default subscription set:
+  ```powershell
+  az login
+  az account set --subscription "<SUBSCRIPTION_ID>"
+  ```
+
+> 💡 **Note:** This lab deploys Azure Firewall (Premium by default), VPN Gateways, and Bastion Standard — these have hourly costs. See [Cleanup](#cleanup) when done.
+
 ## Getting Started
 
 ### Clone the Repository
@@ -39,23 +57,6 @@ The script will:
 
 - `-ResourceGroupName` (required): Name of the resource group
 - `-Location` (optional): Azure region (default: script will prompt)
-
-## Prerequisites
-
-### Requirements
-
-- **Azure Subscription** — An active Azure subscription with sufficient quota for the resources deployed
-- **RBAC Role** — One of the following at the subscription or resource group level:
-  - **Owner** — Full access (recommended for lab/demo)
-  - **Contributor** — Can create all resources but cannot assign roles
-- **Azure CLI or Azure PowerShell** — For deployment
-- Logged in and default subscription set:
-  ```powershell
-  az login
-  az account set --subscription "<SUBSCRIPTION_ID>"
-  ```
-
-> 💡 **Note:** This lab deploys Azure Firewall (Premium by default), VPN Gateways, and Bastion Standard — these have hourly costs. See [Cleanup](#cleanup) when done.
 
 ## What Gets Deployed
 
@@ -100,7 +101,17 @@ In Azure Virtual WAN with Routing Intent, east-west traffic is forced through Az
 
 As a result, Bastion must use **"Connect via IP address"**, explicitly targeting the VM's private IP so traffic can traverse the vWAN routing fabric and firewall as intended.
 
-> ⚠️ **Important:** Your Azure Firewall rules must allow RDP (3389) and/or SSH (22) from the Bastion subnet to the VM subnets.
+> ⚠️ **Important — Routing Intent Requirement:**
+> When using a Secured Virtual Hub (vWAN hub with Azure Firewall), the Bastion spoke VNet **must have default route (0.0.0.0/0) propagation disabled** at the virtual network connection level. Without this, Bastion cannot reach the internet for control-plane operations and will fail.
+>
+> To configure this:
+> 1. In the Azure portal, navigate to your **Virtual WAN hub → Virtual Network Connections**
+> 2. Select the connection for your Bastion VNet
+> 3. Under **Propagate Default Route**, set to **Disabled**
+>
+> See: [Azure Bastion FAQ — Virtual WAN](https://learn.microsoft.com/azure/bastion/bastion-faq#vwan)
+
+> ⚠️ **Firewall Rules:** Your Azure Firewall rules must allow RDP (3389) and/or SSH (22) from the Bastion subnet to the VM subnets.
 
 > **References:**
 > - [Connect to a VM via IP address (Microsoft Docs)](https://learn.microsoft.com/azure/bastion/connect-ip-address) — Official guide for using Bastion's IP-based connection feature (requires Standard SKU)
