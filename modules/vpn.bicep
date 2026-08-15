@@ -8,11 +8,16 @@ param hub2Id string
 
 // Branch VPN Gateway
 resource branchPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = {
-  name: 'branch1-vpngw-pip'
+  name: 'branch1-vpngw-pip-az'
   location: location
   sku: {
     name: 'Standard'
   }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
   properties: {
     publicIPAllocationMethod: 'Static'
   }
@@ -25,8 +30,8 @@ resource branchVpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-11-01' 
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
     sku: {
-      name: 'VpnGw1'
-      tier: 'VpnGw1'
+      name: 'VpnGw1AZ'
+      tier: 'VpnGw1AZ'
     }
     enableBgp: true
     bgpSettings: {
